@@ -1,22 +1,32 @@
 /* 1. ページ全体の設定（中央揃えとフォント） */
 body {
-    /* ページ全体（bodyタグの中身）の文字を中央揃えにする */
-    text-align: center; 
-    /* 見やすいフォントファミリーを指定 */
-    font-family: Arial, sans-serif;
-    /* 本文の文字サイズを指定 */
-    font-size: 16px; 
-    /* ページ上部に少し余白を作る */
-    padding-top: 50px; 
+    text-align: center;  /* ページ全体（bodyタグの中身）の文字を中央揃えにする */
+    font-family: Arial, sans-serif; /* 見やすいフォントファミリーを指定 */
+    font-size: 16px;   /* 本文の文字サイズを指定 */
+    padding-top: 50px;   /* ページ上部に少し余白を作る */
+    background-color: #a4a8d4; /* 全体の背景を青紫色にする */
+    color: #333333; /* 本文の文字色を少し柔らかい黑にする */
 }
 
 /* 2. タイトルの設定 */
 /* h1というタグを使います */
 h1 {
-    /* 文字のサイズを大きくする */
-    font-size: 36px;
-    /* 文字の色を指定（濃い青） */
-    color: #2c3e50;
-    /* タイトルの下側に少し余白を作る */
-    margin-bottom: 30px; 
+    font-size: 36px; /* 文字のサイズを大きくする */
+    margin-bottom: 30px;   /* タイトルの下側に少し余白を作る */
+    color: #5a4498;  /* 文字の色を指定（紫色） */
+}
+
+h2 {
+font-size:  20px; /* 文字のサイズを中くらいにする */
+color: #cab8d9;  /* 文字の色を指定（赤紫色） */
+
+}
+
+img {
+  border-radius: 50%; /* 画像を丸く切り抜く */
+  border: 5px solid #cab8d9; /* 枠線（紫色）を付ける */
+}
+
+a {
+  color: #FFFFFF;
 }
