@@ -28,5 +28,10 @@ img {
 }
 
 a {
-  color: #FFFFFF;
+  color: #483d8b; /* リンクの文字色を変更（紫色） */
+}
+
+a:hover {
+  color: white;  /* リンクにマウスが載ったときの色（白色） */
+  text-decoration: none;  /* リンクにマウスが載ると下線を消す */
 }
