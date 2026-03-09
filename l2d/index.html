@@ -63,7 +63,7 @@
 // --- 3. クリックで笑顔（なめらかアニメーション版） ---
                 let isSmiling = false;
                 let smileProgress = 0; // 0(真顔) ～ 1(満面の笑み) の現在の進捗
-                const transitionSpeed = 0.035; // 変化の速さ（0.5秒くらいで変化する設定）
+                const transitionSpeed = 0.15; // 変化の速さ（0.5秒くらいで変化する設定）
 
                 model.on('pointertap', () => {
                     if (!isSmiling) {
@@ -77,25 +77,24 @@
                     }
                 });
 
-                // 毎フレームの更新処理
-                app.ticker.add(() => {
-                    // 1. 笑顔フラグに合わせて進捗率（smileProgress）を増減させる
+// 毎フレームの更新処理（deltaを追加）
+                app.ticker.add((delta) => {
+                    // delta は、理想の速度(60FPS)に対してどれくらい時間がかかったかの倍数です
+                    // これを掛けることで、処理落ちしてもアニメーションの「時間」を一定に保てます
+                    const adjustedSpeed = transitionSpeed * delta;
+
                     if (isSmiling) {
-                        // 笑顔に向かって数字を増やす（最大1.0まで）
-                        smileProgress = Math.min(1.0, smileProgress + transitionSpeed);
+                        smileProgress = Math.min(1.0, smileProgress + adjustedSpeed);
                     } else {
-                        // 真顔に向かって数字を減らす（最小0まで）
-                        smileProgress = Math.max(0, smileProgress - transitionSpeed);
+                        smileProgress = Math.max(0, smileProgress - adjustedSpeed);
                     }
 
-                    // 2. 計算した進捗率を各パラメータに適用する
-                    // smileProgressが 0.5 なら、笑顔度50%の表情になります
+                    // パラメータに適用
                     model.internalModel.coreModel.setParameterValueById('ParamEyeLSmile', smileProgress);
                     model.internalModel.coreModel.setParameterValueById('ParamEyeRSmile', smileProgress);
                     model.internalModel.coreModel.setParameterValueById('ParamMouthForm', smileProgress);
                     model.internalModel.coreModel.setParameterValueById('ParamMouthOpenY', smileProgress);
                 });
-
                 loadingText.style.display = 'none';
 
             } catch (e) {
