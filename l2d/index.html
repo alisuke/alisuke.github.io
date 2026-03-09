@@ -37,86 +37,68 @@
                 app.stage.addChild(model);
 
                 // --- 1. モデルの配置設定 ---
-function fitModel() {
-    // 画面サイズを再取得してキャンバスを更新
-    app.renderer.resize(window.innerWidth, window.innerHeight);
+                function fitModel() {
+                    // 最新のウィンドウサイズを取得
+                    const width = window.innerWidth;
+                    const height = window.innerHeight;
+                    app.renderer.resize(width, height);
 
-    const isLandscape = app.screen.width > app.screen.height;
+                    const isLandscape = width > height;
 
-    if (isLandscape) {
-        // --- 【横長の時：顔アップ】 ---
-        // 高さに合わせてかなり大きく（2.5倍くらい）する
-        const scale = (app.screen.height / model.height) * 0.4;
-        model.scale.set(scale);
+                    if (isLandscape) {
+                        // 【横長の時：顔アップ】
+                        // 横幅ではなく「高さ」を基準に 1.8倍（お好みで調整）
+                        const scale = (height / model.height) * 1.3;
+                        model.scale.set(scale);
+                        model.anchor.set(0.5, 0.12); // 顔付近を基準に
+                    } else {
+                        // 【縦長の時：全身姿】
+                        // 画面の高さの 80% に収まるように調整 (ここが 0. だったのが原因！)
+                        const scale = (height / model.height) * 1;
+                        model.scale.set(scale);
+                        model.anchor.set(0.5, 0.5); // おへそ付近を基準に
+                    }
 
-        // 基準点を「顔（上の方）」にする
-        // 0.1 ～ 0.2 くらいで Ramnade の顔が真ん中に来るよう調整してね
-        model.anchor.set(0.5, 0.15); 
-        
-        model.x = app.screen.width / 2;
-        model.y = app.screen.height * 0.5; // 画面の真ん中に顔が来る
+                    model.x = width / 2;
+                    model.y = height / 2;
+                }
 
-    } else {
-        // --- 【縦長の時：全身姿】 ---
-        // 高さに収まるように調整（画面の90%くらいのサイズ）
-        const scale = (app.screen.height / model.height) * 0.;
-        model.scale.set(scale);
-
-        // 基準点を「体の中央」にする
-        model.anchor.set(0.5, 0.5);
-        
-        model.x = app.screen.width / 2;
-        model.y = app.screen.height * 0.5;
-    }
-}
-
+                // 起動時とリサイズ時に実行
                 fitModel();
                 window.addEventListener('resize', fitModel);
-                setTimeout(fitModel, 100);
-                // --- 2. 呼吸・まばたき・視線追従の有効化 ---
-                model.interactive = true;
                 
-                // 呼吸などの自動アップデートを有効にする設定
+                // 呼吸・まばたき設定
+                model.interactive = true;
                 model.internalModel.motionManager.update = (...args) => {
                     model.internalModel.motionManager.constructor.prototype.update.call(model.internalModel.motionManager, ...args);
                 };
 
-                // --- 3. クリックで笑顔（表情制御） ---// --- 3. クリックで笑顔（表情制御） ---
-// --- 3. クリックで笑顔（なめらかアニメーション版） ---
+                // --- 2. 笑顔制御 (なめらか版) ---
                 let isSmiling = false;
-                let smileProgress = 0; // 0(真顔) ～ 1(満面の笑み) の現在の進捗
-                const transitionSpeed = 0.15; // 変化の速さ（0.5秒くらいで変化する設定）
+                let smileProgress = 0;
+                const transitionSpeed = 0.1; // 0.15だと早すぎたので少しゆっくりに
 
                 model.on('pointertap', () => {
                     if (!isSmiling) {
                         isSmiling = true;
-                        console.log("Ramnadeがなめらかに笑顔になります！");
-                        
-                        // 2.5秒後に笑顔フラグを下ろす
-                        setTimeout(() => { 
-                            isSmiling = false; 
-                        }, 2500);
+                        setTimeout(() => { isSmiling = false; }, 2500);
                     }
                 });
 
-// 毎フレームの更新処理（deltaを追加）
                 app.ticker.add((delta) => {
-                    // delta は、理想の速度(60FPS)に対してどれくらい時間がかかったかの倍数です
-                    // これを掛けることで、処理落ちしてもアニメーションの「時間」を一定に保てます
                     const adjustedSpeed = transitionSpeed * delta;
-
                     if (isSmiling) {
                         smileProgress = Math.min(1.0, smileProgress + adjustedSpeed);
                     } else {
                         smileProgress = Math.max(0, smileProgress - adjustedSpeed);
                     }
 
-                    // パラメータに適用
                     model.internalModel.coreModel.setParameterValueById('ParamEyeLSmile', smileProgress);
                     model.internalModel.coreModel.setParameterValueById('ParamEyeRSmile', smileProgress);
                     model.internalModel.coreModel.setParameterValueById('ParamMouthForm', smileProgress);
                     model.internalModel.coreModel.setParameterValueById('ParamMouthOpenY', smileProgress);
                 });
+
                 loadingText.style.display = 'none';
 
             } catch (e) {
