@@ -4,14 +4,26 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Live2D Portfolio - Ramnade</title>
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pixi.js/5.3.12/pixi.min.js"></script>
     <script src="./live2dcubismcore.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/pixi-live2d-display/dist/cubism4.min.js"></script>
 
     <style>
-        body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background-color: #f0f0f0; }
+        /* 画面いっぱいにキャンバスを広げ、余計な隙間をなくす設定 */
+        body, html { 
+            margin: 0; padding: 0; width: 100%; height: 100%; 
+            overflow: hidden; background-color: #f0f0f0; 
+            font-family: sans-serif;
+        }
         canvas { display: block; width: 100vw; height: 100vh; }
-        #loading { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: #666; font-family: sans-serif; pointer-events: none; }
+
+        /* 読み込み中の表示 */
+        #loading { 
+            position: absolute; top: 50%; left: 50%; 
+            transform: translate(-50%, -50%); color: #666; 
+            pointer-events: none; z-index: 10;
+        }
     </style>
 </head>
 <body>
@@ -21,10 +33,11 @@
         (async function() {
             const loadingText = document.getElementById('loading');
 
+            // --- 1. PixiJS アプリケーションの作成 ---
             const app = new PIXI.Application({
                 view: document.createElement('canvas'),
                 autoStart: true,
-                resizeTo: window,
+                resizeTo: window, // ウィンドウサイズに自動追従
                 transparent: true,
                 antialias: true,
                 resolution: window.devicePixelRatio || 1,
@@ -33,66 +46,77 @@
             document.body.appendChild(app.view);
 
             try {
+                // --- 2. モデルの読み込み ---
                 const model = await PIXI.live2d.Live2DModel.from('./model/2026Ramnade.model3.json');
                 app.stage.addChild(model);
 
-                // --- 1. モデルの配置設定 ---
+                // --- 3. 配置・レスポンシブ設定（縦横切り替え） ---
                 function fitModel() {
-                    // 最新のウィンドウサイズを取得
-                    const width = window.innerWidth;
-                    const height = window.innerHeight;
-                    app.renderer.resize(width, height);
+                    const w = window.innerWidth;
+                    const h = window.innerHeight;
+                    app.renderer.resize(w, h);
 
-                    const isLandscape = width > height;
+                    const isLandscape = w > h;
 
                     if (isLandscape) {
                         // 【横長の時：顔アップ】
-                        // 横幅ではなく「高さ」を基準に 1.8倍（お好みで調整）
-                        const scale = (height / model.height) * 1.3;
+                        // 高さを基準に1.8倍にズーム。顔の位置(anchor)を調整。
+                        const scale = (h / model.height) * 1.8;
                         model.scale.set(scale);
-                        model.anchor.set(0.5, 0.12); // 顔付近を基準に
+                        model.anchor.set(0.5, 0.12); // 数値を小さくすると顔が上がります
                     } else {
                         // 【縦長の時：全身姿】
-                        // 画面の高さの 80% に収まるように調整 (ここが 0. だったのが原因！)
-                        const scale = (height / model.height) * 1;
+                        // 高さを基準に80%のサイズで全身を表示。
+                        const scale = (h / model.height) * 0.8;
                         model.scale.set(scale);
-                        model.anchor.set(0.5, 0.5); // おへそ付近を基準に
+                        model.anchor.set(0.5, 0.5); // お腹付近を中央に
                     }
 
-                    model.x = width / 2;
-                    model.y = height / 2;
+                    model.x = w / 2;
+                    model.y = h / 2;
                 }
 
-                // 起動時とリサイズ時に実行
+                // 初期配置
                 fitModel();
-                window.addEventListener('resize', fitModel);
-                
-                // 呼吸・まばたき設定
+
+                // 回転・リサイズ対策（0.2秒待ってから再計算して安定させる）
+                let resizeTimer;
+                window.addEventListener('resize', () => {
+                    clearTimeout(resizeTimer);
+                    resizeTimer = setTimeout(fitModel, 200);
+                });
+
+                // --- 4. 呼吸・まばたき・視線追従 ---
                 model.interactive = true;
                 model.internalModel.motionManager.update = (...args) => {
                     model.internalModel.motionManager.constructor.prototype.update.call(model.internalModel.motionManager, ...args);
                 };
 
-                // --- 2. 笑顔制御 (なめらか版) ---
+                // --- 5. 笑顔のなめらか制御 ---
                 let isSmiling = false;
-                let smileProgress = 0;
-                const transitionSpeed = 0.1; // 0.15だと早すぎたので少しゆっくりに
+                let smileProgress = 0; // 0(真顔) ～ 1(笑顔)
+                const transitionSpeed = 0.05; // 変化の速さ（小さいほどなめらか）
 
+                // クリック/タップで笑顔フラグON
                 model.on('pointertap', () => {
                     if (!isSmiling) {
                         isSmiling = true;
+                        // 2.5秒後に真顔に戻る準備
                         setTimeout(() => { isSmiling = false; }, 2500);
                     }
                 });
 
+                // 毎フレームの更新処理
                 app.ticker.add((delta) => {
                     const adjustedSpeed = transitionSpeed * delta;
+
                     if (isSmiling) {
                         smileProgress = Math.min(1.0, smileProgress + adjustedSpeed);
                     } else {
                         smileProgress = Math.max(0, smileProgress - adjustedSpeed);
                     }
 
+                    // 指定されたパラメータに数値を適用
                     model.internalModel.coreModel.setParameterValueById('ParamEyeLSmile', smileProgress);
                     model.internalModel.coreModel.setParameterValueById('ParamEyeRSmile', smileProgress);
                     model.internalModel.coreModel.setParameterValueById('ParamMouthForm', smileProgress);
@@ -102,7 +126,7 @@
                 loadingText.style.display = 'none';
 
             } catch (e) {
-                loadingText.innerText = "読み込みエラーが発生しました";
+                loadingText.innerText = "読み込みエラーが発生しました。ファイル名やパスを確認してください。";
                 console.error(e);
             }
         })();
