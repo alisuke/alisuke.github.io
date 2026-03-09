@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Live2D Portfolio - Ramnade</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pixi.js/5.3.12/pixi.min.js"></script>
+    <script src="./live2dcubismcore.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/pixi-live2d-display/dist/cubism4.min.js"></script>
+
+    <style>
+        body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background-color: #f0f0f0; }
+        canvas { display: block; width: 100vw; height: 100vh; }
+        #loading { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: #666; font-family: sans-serif; pointer-events: none; }
+    </style>
+</head>
+<body>
+    <div id="loading">Ramnade を召喚中...</div>
+
+    <script>
+        (async function() {
+            const loadingText = document.getElementById('loading');
+
+            const app = new PIXI.Application({
+                view: document.createElement('canvas'),
+                autoStart: true,
+                resizeTo: window,
+                transparent: true,
+                antialias: true,
+                resolution: window.devicePixelRatio || 1,
+                autoDensity: true
+            });
+            document.body.appendChild(app.view);
+
+            try {
+                const model = await PIXI.live2d.Live2DModel.from('./model/2026Ramnade.model3.json');
+                app.stage.addChild(model);
+
+                // --- 1. モデルの配置設定 ---
+                function fitModel() {
+                    // 横幅に合わせてサイズ調整（画面幅の80%）
+                    const scale = (app.screen.width / model.width) * 0.8;
+                    model.scale.set(scale);
+                    
+                    // アンカーと位置（顔を中心に）
+                    model.anchor.set(0.5, 0.05); 
+                    model.x = app.screen.width / 2;
+                    model.y = app.screen.height * 0.15; 
+                }
+
+                fitModel();
+                window.addEventListener('resize', fitModel);
+
+                // --- 2. 呼吸・まばたき・視線追従の有効化 ---
+                model.interactive = true;
+                
+                // 呼吸などの自動アップデートを有効にする設定
+                model.internalModel.motionManager.update = (...args) => {
+                    model.internalModel.motionManager.constructor.prototype.update.call(model.internalModel.motionManager, ...args);
+                };
+
+                // --- 3. クリックで笑顔（表情制御） ---// --- 3. クリックで笑顔（表情制御） ---
+// --- 3. クリックで笑顔（なめらかアニメーション版） ---
+                let isSmiling = false;
+                let smileProgress = 0; // 0(真顔) ～ 1(満面の笑み) の現在の進捗
+                const transitionSpeed = 0.035; // 変化の速さ（0.5秒くらいで変化する設定）
+
+                model.on('pointertap', () => {
+                    if (!isSmiling) {
+                        isSmiling = true;
+                        console.log("Ramnadeがなめらかに笑顔になります！");
+                        
+                        // 2.5秒後に笑顔フラグを下ろす
+                        setTimeout(() => { 
+                            isSmiling = false; 
+                        }, 2500);
+                    }
+                });
+
+                // 毎フレームの更新処理
+                app.ticker.add(() => {
+                    // 1. 笑顔フラグに合わせて進捗率（smileProgress）を増減させる
+                    if (isSmiling) {
+                        // 笑顔に向かって数字を増やす（最大1.0まで）
+                        smileProgress = Math.min(1.0, smileProgress + transitionSpeed);
+                    } else {
+                        // 真顔に向かって数字を減らす（最小0まで）
+                        smileProgress = Math.max(0, smileProgress - transitionSpeed);
+                    }
+
+                    // 2. 計算した進捗率を各パラメータに適用する
+                    // smileProgressが 0.5 なら、笑顔度50%の表情になります
+                    model.internalModel.coreModel.setParameterValueById('ParamEyeLSmile', smileProgress);
+                    model.internalModel.coreModel.setParameterValueById('ParamEyeRSmile', smileProgress);
+                    model.internalModel.coreModel.setParameterValueById('ParamMouthForm', smileProgress);
+                    model.internalModel.coreModel.setParameterValueById('ParamMouthOpenY', smileProgress);
+                });
+
+                loadingText.style.display = 'none';
+
+            } catch (e) {
+                loadingText.innerText = "読み込みエラーが発生しました";
+                console.error(e);
+            }
+        })();
+    </script>
+</body>
+</html>
