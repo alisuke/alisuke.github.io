@@ -37,20 +37,42 @@
                 app.stage.addChild(model);
 
                 // --- 1. モデルの配置設定 ---
-                function fitModel() {
-                    // 横幅に合わせてサイズ調整（画面幅の80%）
-                    const scale = (app.screen.width / model.width) * 0.8;
-                    model.scale.set(scale);
-                    
-                    // アンカーと位置（顔を中心に）
-                    model.anchor.set(0.5, 0.05); 
-                    model.x = app.screen.width / 2;
-                    model.y = app.screen.height * 0.15; 
-                }
+function fitModel() {
+    // 画面サイズを再取得してキャンバスを更新
+    app.renderer.resize(window.innerWidth, window.innerHeight);
+
+    const isLandscape = app.screen.width > app.screen.height;
+
+    if (isLandscape) {
+        // --- 【横長の時：顔アップ】 ---
+        // 高さに合わせてかなり大きく（2.5倍くらい）する
+        const scale = (app.screen.height / model.height) * 0.4;
+        model.scale.set(scale);
+
+        // 基準点を「顔（上の方）」にする
+        // 0.1 ～ 0.2 くらいで Ramnade の顔が真ん中に来るよう調整してね
+        model.anchor.set(0.5, 0.15); 
+        
+        model.x = app.screen.width / 2;
+        model.y = app.screen.height * 0.5; // 画面の真ん中に顔が来る
+
+    } else {
+        // --- 【縦長の時：全身姿】 ---
+        // 高さに収まるように調整（画面の90%くらいのサイズ）
+        const scale = (app.screen.height / model.height) * 0.;
+        model.scale.set(scale);
+
+        // 基準点を「体の中央」にする
+        model.anchor.set(0.5, 0.5);
+        
+        model.x = app.screen.width / 2;
+        model.y = app.screen.height * 0.5;
+    }
+}
 
                 fitModel();
                 window.addEventListener('resize', fitModel);
-
+                setTimeout(fitModel, 100);
                 // --- 2. 呼吸・まばたき・視線追従の有効化 ---
                 model.interactive = true;
                 
