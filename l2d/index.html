@@ -61,13 +61,13 @@
                     if (isLandscape) {
                         // 【横長の時：顔アップ】
                         // 高さを基準に1.8倍にズーム。顔の位置(anchor)を調整。
-                        const scale = (h / model.height) * 1.8;
+                        const scale = (h / model.height) * 1.5;
                         model.scale.set(scale);
                         model.anchor.set(0.5, 0.12); // 数値を小さくすると顔が上がります
                     } else {
                         // 【縦長の時：全身姿】
                         // 高さを基準に80%のサイズで全身を表示。
-                        const scale = (h / model.height) * 0.8;
+                        const scale = (h / model.height) * 0.9;
                         model.scale.set(scale);
                         model.anchor.set(0.5, 0.5); // お腹付近を中央に
                     }
@@ -95,7 +95,7 @@
                 // --- 5. 笑顔のなめらか制御 ---
                 let isSmiling = false;
                 let smileProgress = 0; // 0(真顔) ～ 1(笑顔)
-                const transitionSpeed = 0.05; // 変化の速さ（小さいほどなめらか）
+                const transitionSpeed = 0.1; // 変化の速さ（小さいほどなめらか）
 
                 // クリック/タップで笑顔フラグON
                 model.on('pointertap', () => {
