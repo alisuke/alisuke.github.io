@@ -1,11 +1,11 @@
 {
 	"Version": 3,
 	"FileReferences": {
-		"Moc": "2026Ramnade.moc3",
+		"Moc": "2026ramnade.moc3",
 		"Textures": [
-			"2026Ramnade.4096/texture_00.png"
+			"2026ramnade.2048/texture_00.png"
 		],
-		"DisplayInfo": "2026Ramnade.cdi3.json"
+		"DisplayInfo": "2026ramnade.cdi3.json"
 	},
 	"Groups": [
 		{
