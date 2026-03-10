@@ -32,6 +32,11 @@
 			"Name": "右目　開閉"
 		},
 		{
+			"Id": "ParamEyeBallForm",
+			"GroupId": "",
+			"Name": "目玉の拡大縮小"
+		},
+		{
 			"Id": "ParamEyeRSmile",
 			"GroupId": "",
 			"Name": "右目　笑顔"
