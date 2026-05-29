@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>多配列対応エミュレーター</title>
+    <style>
+        body { background: #1a1a1a; color: white; font-family: sans-serif; display: flex; flex-direction: column; align-items: center; padding: 20px; margin: 0; }
+        
+        /* --- 追加：左上固定ボタン --- */
+        .fixed-nav {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            z-index: 100;
+        }
+        .nav-btn {
+            width: 50px;
+            height: 50px;
+            background: #333;
+            color: white;
+            border: 1px solid #555;
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            text-decoration: none;
+            font-size: 1.2rem;
+            transition: 0.2s;
+        }
+        .nav-btn:hover { background: #444; border-color: #00ffcc; }
+
+        /* --- 追加：ポップアップ（モーダル） --- */
+        .overlay {
+            display: none; /* 初期状態は非表示 */
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.8);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        .popup {
+            background: #2a2a2a;
+            padding: 30px;
+            border-radius: 15px;
+            border: 1px solid #444;
+            max-width: 500px;
+            width: 90%;
+            line-height: 1.6;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+        .popup a { color: #00ffcc; text-decoration: underline; }
+        .popup-close-btn {
+            margin-top: 20px;
+            padding: 10px 20px;
+            background: #444;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            width: 100%;
+        }
+        .popup-close-btn:hover { background: #555; }
+
+        /* --- 既存スタイル --- */
+        #memo-area {
+            width: 90%; max-width: 900px; height: 120px;
+            background: #2a2a2a; color: #00ffcc; border: 2px solid #444;
+            border-radius: 10px; padding: 15px; font-size: 1.5rem;
+            margin-bottom: 20px; outline: none; overflow-y: auto; line-height: 1.4;
+        }
+        .controls { margin-bottom: 20px; display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
+        button {
+            padding: 8px 20px; font-size: 0.9rem; cursor: pointer;
+            background: #444; color: white; border: none; border-radius: 5px;
+            transition: 0.2s;
+        }
+        button.active { background: #00ffcc; color: #1a1a1a; font-weight: bold; }
+        #keyboard { background: #333; padding: 20px; border-radius: 12px; box-shadow: 0 5px 20px rgba(0,0,0,0.6); }
+        .row { display: flex; margin-bottom: 6px; }
+        .row-2 { margin-left: 25px; }
+        .row-3 { margin-left: 55px; }
+        .key {
+            width: 52px; height: 52px; background: #444; margin: 3px; border-radius: 6px;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            border-bottom: 4px solid #222; transition: 0.05s;
+        }
+        .key .phys { font-size: 0.65rem; color: #888; margin-bottom: 2px; }
+        .key .target { font-size: 1.2rem; font-weight: bold; }
+        .key.active { background: #00ffcc; color: #1a1a1a; border-bottom: none; transform: translateY(3px); }
+    </style>
+</head>
+<body>
+
+    <div class="fixed-nav">
+        <a href="#" class="nav-btn" title="戻る">←</a>
+        <button class="nav-btn" onclick="togglePopup(true)">？</button>
+    </div>
+
+    <div id="help-overlay" class="overlay" onclick="togglePopup(false)">
+        <div class="popup" onclick="event.stopPropagation()">
+            <p>こちらはさまざまな配列を試すことを目的としたWebツールです。<br>
+            テキストの保存、サーバーへの送信等の高度な機能はありません。<br>
+            現在はアルファベットの入力のみに対応しています。<br>
+            管理人：alisuke(<a href="https://alisuke.github.io/" target="_blank">https://alisuke.github.io/)</a><br>
+            コーディング：Gemini（GoogleのAI）</p>
+            <p>配列ソース<br>
+            ・大西配列（大西拓磨）<br>
+            <a href="https://o24.works/layout/" target="_blank">https://o24.works/layout/</a></p>
+            <button class="popup-close-btn" onclick="togglePopup(false)">戻る</button>
+        </div>
+    </div>
+
+    <h2 style="color: #888; margin-bottom: 10px;">Multilingual Layout Emulator</h2>
+    <div id="memo-area" contenteditable="true" placeholder="ここにタイピング..."></div>
+    <div class="controls" id="layout-switcher"></div>
+
+    <div id="keyboard">
+        <div class="row" id="row1"></div>
+        <div class="row row-2" id="row2"></div>
+        <div class="row row-3" id="row3"></div>
+    </div>
+
+    <script>
+        // --- ポップアップ制御 ---
+        function togglePopup(show) {
+            document.getElementById('help-overlay').style.display = show ? 'flex' : 'none';
+        }
+
+        const allLayouts = {
+            qwerty: { name: "QWERTY", map: {} },
+            custom: {
+                name: "カスタム配列",
+                map: {
+                    'q':'q', 'w':'l', 'e':'u', 'r':'-', 't':'.', 'y':'f', 'u':'w', 'i':'r', 'o':'y', 'p':'p', '[':'[', ']':']',
+                    'a':'e', 's':'i', 'd':'a', 'f':'o', 'g':',', 'h':'k', 'j':'t', 'k':'n', 'l':'s', ';':'h', "'":"'",
+                    'z':'z', 'x':'x', 'c':'c', 'v':'v', 'b':'/', 'n':'g', 'm':'d', ',':'m', '.':'j', '/':'b'
+                }
+            }
+        };
+
+        const rows = [
+            ['q','w','e','r','t','y','u','i','o','p','[',']'],
+            ['a','s','d','f','g','h','j','k','l',';',"'"],
+            ['z','x','c','v','b','n','m',',','.','/']
+        ];
+
+        let currentLayoutKey = 'qwerty';
+        const memo = document.getElementById('memo-area');
+        const switcher = document.getElementById('layout-switcher');
+
+        for (let key in allLayouts) {
+            const btn = document.createElement('button');
+            btn.innerText = allLayouts[key].name;
+            btn.id = `btn-${key}`;
+            btn.onclick = () => setLayout(key);
+            switcher.appendChild(btn);
+        }
+
+        function renderKeyboard() {
+            const layout = allLayouts[currentLayoutKey].map;
+            rows.forEach((keys, i) => {
+                const rowDiv = document.getElementById(`row${i+1}`);
+                rowDiv.innerHTML = '';
+                keys.forEach(k => {
+                    const target = (currentLayoutKey === 'qwerty') ? k : (layout[k] || k);
+                    const keyDiv = document.createElement('div');
+                    keyDiv.className = 'key';
+                    keyDiv.id = `key-${k}`;
+                    keyDiv.innerHTML = `<span class="phys">${k.toUpperCase()}</span><span class="target">${target.toUpperCase()}</span>`;
+                    rowDiv.appendChild(keyDiv);
+                });
+            });
+        }
+
+        function setLayout(key) {
+            currentLayoutKey = key;
+            document.querySelectorAll('.controls button').forEach(b => b.classList.remove('active'));
+            const activeBtn = document.getElementById(`btn-${key}`);
+            if(activeBtn) activeBtn.classList.add('active');
+            renderKeyboard();
+            memo.focus();
+        }
+
+        memo.addEventListener('keydown', (e) => {
+            const char = e.key.toLowerCase();
+            const keyEl = document.getElementById(`key-${char}`);
+            if (e.key.length === 1 && !e.ctrlKey && !e.metaKey && !e.altKey) {
+                e.preventDefault();
+                const layout = allLayouts[currentLayoutKey].map;
+                const output = (currentLayoutKey === 'qwerty') ? e.key : (layout[char] || e.key);
+                const selection = window.getSelection();
+                const range = selection.getRangeAt(0);
+                range.deleteContents();
+                range.insertNode(document.createTextNode(output));
+                selection.collapseToEnd();
+            }
+            if (keyEl) keyEl.classList.add('active');
+        });
+
+        window.addEventListener('keyup', (e) => {
+            const keyEl = document.getElementById(`key-${e.key.toLowerCase()}`);
+            if (keyEl) keyEl.classList.remove('active');
+        });
+
+        setLayout('qwerty');
+    </script>
+</body>
+</html>
