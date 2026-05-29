@@ -36,7 +36,6 @@ window.wordPool = [
   {"word": "axe", "emojis": ["🪓"], "color": "brown", "effect": "", "facing": ""},
 
   // === B ===
-  {"word": "b", "emojis": ["🅱️"], "color": "red", "effect": "", "facing": ""},
   {"word": "baby", "emojis": ["👶"], "color": "", "effect": "", "facing": ""},
   {"word": "back", "emojis": ["🔙"], "color": "grey", "effect": "", "facing": ""},
   {"word": "backhand", "emoji": "🤚", "color": "", "effect": "", "facing": ""},
@@ -616,7 +615,6 @@ window.wordPool = [
   {"word": "nut", "emojis": ["🥜", "🌰"], "color": "brown", "effect": "", "facing": ""},
 
   // === O ===
-  {"word": "o", "emojis": ["🅾️"], "color": "red", "effect": "", "facing": ""},
   {"word": "octopus", "emojis": ["🐙"], "color": "red", "effect": "", "facing": ""},
   {"word": "oden", "emojis": ["🍢"], "color": "brown", "effect": "", "facing": ""},
   {"word": "office", "emojis": ["🧑‍💼", "👨‍💼", "👩‍💼"], "color": "", "effect": "", "facing": ""},
