@@ -76,7 +76,7 @@
         /* 絞り込みフィルターパネル */
         #filter-panel {
             position: fixed;
-            top: -450px; 
+            top: -450px; /* スロット増分、少し広げました */
             left: 0;
             right: 0;
             background-color: var(--panel-bg);
@@ -141,6 +141,7 @@
             color: var(--color-accent);
         }
 
+        /* === v1.04 新設：セーブ・ロード用ボタンスタイル === */
         .slot-btn {
             border: 1px solid var(--text-main);
             color: var(--text-main);
@@ -293,7 +294,11 @@
             <div class="filter-label">N - Z :</div>
             <div class="btn-group" id="alpha-nz-buttons"></div>
         </div>
-
+        <div class="filter-row">
+            <div class="filter-label">Others :</div>
+            <div class="btn-group" id="alpha-other-buttons"></div>
+        </div>
+        
         <div class="filter-row" style="border-top: 1px dashed var(--text-muted); padding-top: 15px;">
             <div class="filter-label" style="margin-top: 8px;">PRESETS :</div>
             <div class="btn-group" id="save-slots-container"></div>
@@ -324,7 +329,7 @@
     <div id="info">Press any key to start typing!</div>
 </div>
 
-<div id="version">Emoji Burst Typing v1.06</div>
+<div id="version">Emoji English Typing v1.04</div>
 
 <script src="data.js"></script>
 
@@ -333,10 +338,11 @@ const wordPool = window.wordPool || [];
 
 const filterAlphabet = {
     am: ['a','b','c','d','e','f','g','h','i','j','k','l','m'],
-    nz: ['n','o','p','q','r','s','t','u','v','w','x','y','z']
+    nz: ['n','o','p','q','r','s','t','u','v','w','x','y','z'],
+    others: ['0','1','2','3','4','5','6','7','8','9']
 };
 
-let activeChars = new Set([...filterAlphabet.am, ...filterAlphabet.nz]);
+let activeChars = new Set([...filterAlphabet.am, ...filterAlphabet.nz, ...filterAlphabet.others]);
 let filteredWords = [];
 
 let prevLineText = ""; 
@@ -359,13 +365,15 @@ function toggleSettingsPanel(event) {
 function createFilterUI() {
     const amContainer = document.getElementById("alpha-am-buttons");
     const nzContainer = document.getElementById("alpha-nz-buttons");
+    const otherContainer = document.getElementById("alpha-other-buttons");
 
     amContainer.innerHTML = "";
     nzContainer.innerHTML = "";
+    otherContainer.innerHTML = "";
 
     const createBtn = (char, container) => {
         const btn = document.createElement("button");
-        btn.id = "btn-char-" + char; 
+        btn.id = "btn-char-" + char; // v1.04 IDを付与して外部から活性/非活性を操作可能に
         btn.className = "filter-btn active";
         btn.innerText = char.toUpperCase();
         btn.onclick = (e) => {
@@ -377,7 +385,9 @@ function createFilterUI() {
 
     filterAlphabet.am.forEach(c => createBtn(c, amContainer));
     filterAlphabet.nz.forEach(c => createBtn(c, nzContainer));
+    filterAlphabet.others.forEach(c => createBtn(c, otherContainer));
 
+    // === v1.04 セーブ・ロードスロットの生成 ===
     const slotContainer = document.getElementById("save-slots-container");
     slotContainer.innerHTML = "";
     for(let i = 1; i <= 5; i++) {
@@ -392,14 +402,19 @@ function createFilterUI() {
     }
 }
 
+// === v1.04 新設：localStorageへの保存・読み込みロジック ===
 function saveKeyPreset(slotId, event) {
     if (event) event.stopPropagation();
+    
+    // 現在Setに入っている文字を配列に変換
     const charsArray = Array.from(activeChars);
+    
+    // ブラウザに「emoji_typing_slot_1」のような名前で文字列化して保存
     localStorage.setItem(`emoji_typing_slot_${slotId}`, JSON.stringify(charsArray));
+    
     alert(`Saved to Set ${slotId}!`);
 }
 
-// 【変更】クレンジング機能を廃止し、セーブデータをそのまま配列に復元するシンプルな処理に修正
 function loadKeyPreset(slotId, event) {
     if (event) event.stopPropagation();
     
@@ -409,10 +424,12 @@ function loadKeyPreset(slotId, event) {
         return;
     }
     
+    // 文字列から配列に戻す
     const charsArray = JSON.parse(savedData);
     activeChars = new Set(charsArray);
     
-    const allCharList = [...filterAlphabet.am, ...filterAlphabet.nz];
+    // ボタンの見た目（CSSクラス）を現在の状態に一括同期
+    const allCharList = [...filterAlphabet.am, ...filterAlphabet.nz, ...filterAlphabet.others];
     allCharList.forEach(char => {
         const btn = document.getElementById("btn-char-" + char);
         if (btn) {
@@ -420,9 +437,11 @@ function loadKeyPreset(slotId, event) {
         }
     });
     
+    // フィルター更新・ゲーム再生成
     onFilterChange();
     document.getElementById("info").innerText = `Loaded Preset Set ${slotId}!`;
 }
+
 
 function toggleCharFilter(char, btn) {
     if (activeChars.has(char)) {
@@ -437,12 +456,14 @@ function toggleCharFilter(char, btn) {
 
 function setAllFilters(isActive) {
     if (isActive) {
-        activeChars = new Set([...filterAlphabet.am, ...filterAlphabet.nz]);
+        activeChars = new Set([...filterAlphabet.am, ...filterAlphabet.nz, ...filterAlphabet.others]);
+        document.querySelectorAll(".filter-btn").forEach(b => b.classList.add("add", "active"));
     } else {
         activeChars.clear();
+        document.querySelectorAll(".filter-btn").forEach(b => b.classList.remove("active"));
     }
-    
-    const allCharList = [...filterAlphabet.am, ...filterAlphabet.nz];
+    // 正確に全クラスを揃える
+    const allCharList = [...filterAlphabet.am, ...filterAlphabet.nz, ...filterAlphabet.others];
     allCharList.forEach(char => {
         const btn = document.getElementById("btn-char-" + char);
         if (btn) btn.classList.toggle("active", isActive);
@@ -454,7 +475,6 @@ function onFilterChange() {
     filteredWords = wordPool.filter(item => {
         if (!item.word || item.word.length === 0) return false;
         const lowerWord = item.word.toLowerCase();
-        
         for (let i = 0; i < lowerWord.length; i++) {
             if (!activeChars.has(lowerWord.charAt(i))) {
                 return false; 
