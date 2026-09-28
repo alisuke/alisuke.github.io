@@ -1,4 +1,5 @@
 window.wordPool = [
+  // 生成済
     {"word": "grinning face", "emoji": "😀", "color": "", "effect": "", "facing": ""},
     {"word": "grinning face with big eyes", "emoji": "😃", "color": "", "effect": "", "facing": ""},
     {"word": "grinning face with smiling eyes", "emoji": "😄", "color": "", "effect": "", "facing": ""},
@@ -30,6 +31,9 @@ window.wordPool = [
     {"word": "money-mouth face", "emoji": "🤑", "color": "", "effect": "", "facing": ""},
     {"word": "smiling face with open hands", "emoji": "🤗", "color": "", "effect": "", "facing": ""},
     {"word": "face with hand over mouth", "emoji": "🤭", "color": "", "effect": "", "facing": ""},
+
+
+    // 未生成
     {"word": "face with open eyes and hand over mouth", "emoji": "🫢", "color": "", "effect": "", "facing": ""},
     {"word": "face with peeking eye", "emoji": "🫣", "color": "", "effect": "", "facing": ""},
     {"word": "shushing face", "emoji": "🤫", "color": "", "effect": "", "facing": ""},
@@ -1507,4 +1511,77 @@ window.wordPool = [
     {"word": "trade mark", "emoji": "™️", "color": "", "effect": "", "facing": ""},
 
     
+];
+
+window.wordPool = [
+
+// 生成済
+    {"word": "keycap 2", "emoji": "2️⃣", "color": "", "effect": "", "facing": ""},
+    {"word": "keycap 3", "emoji": "3️⃣", "color": "", "effect": "", "facing": ""},
+    {"word": "keycap 4", "emoji": "4️⃣", "color": "", "effect": "", "facing": ""},
+    {"word": "keycap 5", "emoji": "5️⃣", "color": "", "effect": "", "facing": ""},
+    {"word": "keycap 6", "emoji": "6️⃣", "color": "", "effect": "", "facing": ""},
+    {"word": "keycap 7", "emoji": "7️⃣", "color": "", "effect": "", "facing": ""},
+    {"word": "keycap 8", "emoji": "8️⃣", "color": "", "effect": "", "facing": ""},
+    {"word": "keycap 9", "emoji": "9️⃣", "color": "", "effect": "", "facing": ""},
+    {"word": "keycap 10", "emoji": "🔟", "color": "", "effect": "", "facing": ""},
+    {"word": "input latin uppercase", "emoji": "🔠", "color": "", "effect": "", "facing": ""},
+    {"word": "input latin lowercase", "emoji": "🔡", "color": "", "effect": "", "facing": ""},
+    {"word": "input numbers", "emoji": "🔢", "color": "", "effect": "", "facing": ""},
+    {"word": "input symbols", "emoji": "🔣", "color": "", "effect": "", "facing": ""},
+    {"word": "input latin letters", "emoji": "🔤", "color": "", "effect": "", "facing": ""},
+    {"word": "a button (blood type)", "emoji": "🅰️", "color": "", "effect": "", "facing": ""},
+    {"word": "ab button (blood type)", "emoji": "🆎", "color": "", "effect": "", "facing": ""},
+    {"word": "b button (blood type)", "emoji": "🅱️", "color": "", "effect": "", "facing": ""},
+    {"word": "information", "emoji": "ℹ️", "color": "", "effect": "", "facing": ""},
+    {"word": "circled m", "emoji": "Ⓜ️", "color": "", "effect": "", "facing": ""},
+    {"word": "o button (blood type)", "emoji": "🅾️", "color": "", "effect": "", "facing": ""},
+    {"word": "p button", "emoji": "🅿️", "color": "", "effect": "", "facing": ""},
+    {"word": "japanese “service charge” button", "emoji": "🈂️", "color": "", "effect": "", "facing": ""},
+    {"word": "japanese “monthly amount” button", "emoji": "🈷️", "color": "", "effect": "", "facing": ""},
+    {"word": "japanese “congratulations” button", "emoji": "㊗️", "color": "", "effect": "", "facing": ""},
+    {"word": "japanese “secret” button", "emoji": "㊙️", "color": "", "effect": "", "facing": ""},
+    {"word": "red circle", "emoji": "🔴", "color": "", "effect": "", "facing": ""},
+    {"word": "orange circle", "emoji": "🟠", "color": "", "effect": "", "facing": ""},
+    {"word": "yellow circle", "emoji": "🟡", "color": "", "effect": "", "facing": ""},
+    {"word": "green circle", "emoji": "🟢", "color": "", "effect": "", "facing": ""},
+    {"word": "blue circle", "emoji": "🔵", "color": "", "effect": "", "facing": ""},
+    {"word": "purple circle", "emoji": "🟣", "color": "", "effect": "", "facing": ""},
+    {"word": "brown circle", "emoji": "🟤", "color": "", "effect": "", "facing": ""},
+    {"word": "red square", "emoji": "🟥", "color": "", "effect": "", "facing": ""},
+    {"word": "orange square", "emoji": "🟧", "color": "", "effect": "", "facing": ""},
+    {"word": "yellow square", "emoji": "🟨", "color": "", "effect": "", "facing": ""},
+    {"word": "green square", "emoji": "🟩", "color": "", "effect": "", "facing": ""},
+    {"word": "blue square", "emoji": "🟦", "color": "", "effect": "", "facing": ""},
+    {"word": "purple square", "emoji": "🟪", "color": "", "effect": "", "facing": ""},
+    {"word": "brown square", "emoji": "🟫", "color": "", "effect": "", "facing": ""},
+    {"word": "black large square", "emoji": "⬛", "color": "", "effect": "", "facing": ""},
+    {"word": "white large square", "emoji": "⬜", "color": "", "effect": "", "facing": ""},
+    {"word": "black medium square", "emoji": "◼️", "color": "", "effect": "", "facing": ""},
+    {"word": "white medium square", "emoji": "◻️", "color": "", "effect": "", "facing": ""},
+    {"word": "black medium-small square", "emoji": "◾", "color": "", "effect": "", "facing": ""},
+    {"word": "white medium-small square", "emoji": "◽", "color": "", "effect": "", "facing": ""},
+    {"word": "black small square", "emoji": "▪️", "color": "", "effect": "", "facing": ""},
+    {"word": "white small square", "emoji": "▫️", "color": "", "effect": "", "facing": ""},
+    {"word": "large orange diamond", "emoji": "🔶", "color": "", "effect": "", "facing": ""},
+    {"word": "large blue diamond", "emoji": "🔷", "color": "", "effect": "", "facing": ""},
+    {"word": "small orange diamond", "emoji": "🔸", "color": "", "effect": "", "facing": ""},
+    {"word": "small blue diamond", "emoji": "🔹", "color": "", "effect": "", "facing": ""},
+    {"word": "red triangle pointed up", "emoji": "🔺", "color": "", "effect": "", "facing": ""},
+    {"word": "red triangle pointed down", "emoji": "🔻", "color": "", "effect": "", "facing": ""},
+    {"word": "diamond with a dot", "emoji": "💠", "color": "", "effect": "", "facing": ""},
+    {"word": "radio button", "emoji": "🔘", "color": "", "effect": "", "facing": ""},
+    {"word": "white square button", "emoji": "🔳", "color": "", "effect": "", "facing": ""},
+    {"word": "black square button", "emoji": "🔲", "color": "", "effect": "", "facing": ""},
+    {"word": "chequered flag", "emoji": "🏁", "color": "", "effect": "", "facing": ""},
+    {"word": "triangular flag", "emoji": "🚩", "color": "", "effect": "", "facing": ""},
+    {"word": "crossed flags", "emoji": "🎌", "color": "", "effect": "", "facing": ""},
+    {"word": "black flag", "emoji": "🏴", "color": "", "effect": "", "facing": ""},
+    {"word": "white flag", "emoji": "🏳️", "color": "", "effect": "", "facing": ""},
+    {"word": "rainbow flag", "emoji": "🏳️‍🌈", "color": "", "effect": "", "facing": ""},
+    {"word": "transgender flag", "emoji": "🏳️‍⚧️", "color": "", "effect": "", "facing": ""},
+    {"word": "pirate flag", "emoji": "🏴‍☠️", "color": "", "effect": "", "facing": ""},
+
+
+
 ];

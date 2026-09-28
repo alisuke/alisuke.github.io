@@ -76,7 +76,7 @@
         /* 絞り込みフィルターパネル */
         #filter-panel {
             position: fixed;
-            top: -450px; 
+            top: -500px; 
             left: 0;
             right: 0;
             background-color: var(--panel-bg);
@@ -102,13 +102,13 @@
         .filter-row {
             display: flex;
             align-items: flex-start;
-            margin: 12px 0;
+            margin: 10px 0;
             gap: 10px;
         }
         .filter-label {
             width: 90px;
             text-align: right;
-            font-size: 14px;
+            font-size: 13px;
             font-weight: bold;
             color: var(--text-main);
             margin-top: 6px;
@@ -171,7 +171,18 @@
             border-radius: 6px;
         }
 
-        /* レイヤー構造（背景・エフェクト・文字の分離） */
+        #word-count-badge {
+            font-size: 13px;
+            font-weight: bold;
+            color: var(--color-primary);
+            align-self: center;
+            margin-left: auto;
+            background: rgba(52, 152, 219, 0.1);
+            padding: 6px 12px;
+            border-radius: 20px;
+        }
+
+        /* レイヤー構造 */
         #game-bg-panel {
             position: absolute;
             top: 50%;
@@ -203,35 +214,43 @@
         #stats-container {
             display: flex;
             justify-content: center;
-            gap: 50px;
+            gap: 45px;
             margin-bottom: 30px;
-            font-size: 16px;
+            font-size: 15px;
         }
         .stat-box { text-align: left; color: var(--stat-label); }
-        .stat-value { font-size: 42px; color: var(--color-accent); font-weight: bold; }
+        .stat-value { font-size: 38px; color: var(--color-accent); font-weight: bold; }
 
+        /* 横3単語 × 2行構成 */
         .line-container {
-            font-size: 28px;
+            font-size: 34px;
             letter-spacing: 2px;
             word-wrap: break-word;
             user-select: none;
-            margin: 25px 0;
-            min-height: 45px;
+            margin: 20px 0;
+            min-height: 52px;
             line-height: 1.5;
         }
-        #prev-line { color: var(--text-muted); font-size: 22px; opacity: 0.4; }
-        #current-line { font-size: 38px; color: var(--text-main); }
-        #next-line { color: var(--text-muted); font-size: 22px; opacity: 0.4; }
+        #current-line {
+            color: var(--text-main);
+            font-size: 40px;
+        }
+        #next-line {
+            color: var(--text-muted);
+            font-size: 26px;
+            opacity: 0.4;
+        }
 
         .char-box {
             position: relative;
             display: inline;
+            white-space: pre;
         }
-        .correct { color: var(--text-muted); opacity: 0.4; }
-        .incorrect { color: var(--color-error); border-bottom: 2px solid var(--color-error); }
+        .correct { color: var(--text-muted); opacity: 0.35; }
+        .incorrect { color: var(--color-error); border-bottom: 3px solid var(--color-error); }
         .current-char { color: var(--color-primary); border-left: 2px solid var(--color-primary); }
 
-        #info { margin-top: 40px; font-size: 14px; color: var(--text-muted); min-height: 20px; }
+        #info { margin-top: 35px; font-size: 14px; color: var(--text-muted); min-height: 20px; }
         #version { position: absolute; bottom: 20px; font-size: 12px; color: var(--text-muted); opacity: 0.6; z-index: 20; }
 
         /* 🎆 エフェクト（背面） */
@@ -294,13 +313,23 @@
             <div class="btn-group" id="alpha-nz-buttons"></div>
         </div>
 
-        <div class="filter-row" style="border-top: 1px dashed var(--text-muted); padding-top: 15px;">
+        <!-- 🌟 新設：文字数フィルター（案C形式） -->
+        <div class="filter-row">
+            <div class="filter-label">LENGTH :</div>
+            <div class="btn-group">
+                <button id="len-std-btn" class="filter-btn active" onclick="toggleLengthFilter('std')">STANDARD (1-5)</button>
+                <button id="len-exp-btn" class="filter-btn active" onclick="toggleLengthFilter('exp')">EXPANDED (6+)</button>
+            </div>
+        </div>
+
+        <div class="filter-row" style="border-top: 1px dashed var(--text-muted); padding-top: 12px;">
             <div class="filter-label" style="margin-top: 8px;">PRESETS :</div>
             <div class="btn-group" id="save-slots-container"></div>
         </div>
 
-        <div class="filter-row" style="margin-top: 12px; justify-content: flex-end;">
-            <div class="btn-group">
+        <div class="filter-row" style="margin-top: 12px; align-items: center;">
+            <div id="word-count-badge">Words Available: 0</div>
+            <div class="btn-group" style="justify-content: flex-end; flex: initial; margin-left: 15px;">
                 <button class="filter-btn action-btn" onclick="setAllFilters(true)">ALL (全選択)</button>
                 <button class="filter-btn action-btn" onclick="setAllFilters(false)">RESET (全解除)</button>
             </div>
@@ -313,23 +342,58 @@
 <div id="game-container">
     <div id="stats-container">
         <div class="stat-box"><div>TIME</div><div id="stat-time" class="stat-value">0s</div></div>
+        <div class="stat-box"><div>COMBO</div><div id="stat-combo" class="stat-value">0</div></div>
         <div class="stat-box"><div>KPM</div><div id="stat-kpm" class="stat-value">0</div></div>
         <div class="stat-box"><div>ACC</div><div id="stat-acc" class="stat-value">100%</div></div>
     </div>
 
-    <div id="prev-line" class="line-container"></div>
+    <!-- 2行構成（現在行 3単語 / 次行 3単語） -->
     <div id="current-line" class="line-container"></div>
     <div id="next-line" class="line-container"></div>
     
     <div id="info">Press any key to start typing!</div>
 </div>
 
-<div id="version">Emoji Burst Typing v1.06</div>
+<div id="version">Emoji Burst Typing v1.10</div>
 
 <script src="data.js"></script>
 
 <script>
-const wordPool = window.wordPool || [];
+const rawPool = window.wordPool || [];
+
+// === 1行=1単語:1絵文字の新形式に対応しつつ、同一単語の絵文字を自動集約 ===
+const dictionaryMap = new Map();
+
+rawPool.forEach(item => {
+    if (!item.word) return;
+    const wordKey = item.word.trim().toLowerCase();
+    if (!wordKey) return;
+
+    if (!dictionaryMap.has(wordKey)) {
+        dictionaryMap.set(wordKey, {
+            word: wordKey,
+            emojis: [],
+            effect: item.effect || "",
+            facing: item.facing || ""
+        });
+    }
+
+    const entry = dictionaryMap.get(wordKey);
+
+    if (item.emoji && !entry.emojis.includes(item.emoji)) {
+        entry.emojis.push(item.emoji);
+    }
+    if (Array.isArray(item.emojis)) {
+        item.emojis.forEach(e => {
+            if (e && !entry.emojis.includes(e)) entry.emojis.push(e);
+        });
+    }
+
+    if (item.effect) entry.effect = item.effect;
+    if (item.facing) entry.facing = item.facing;
+});
+
+const wordPool = Array.from(dictionaryMap.values());
 
 const filterAlphabet = {
     am: ['a','b','c','d','e','f','g','h','i','j','k','l','m'],
@@ -337,14 +401,24 @@ const filterAlphabet = {
 };
 
 let activeChars = new Set([...filterAlphabet.am, ...filterAlphabet.nz]);
+
+// 🌟 長さフィルターの状態（両方初期値 true）
+let filterLength = {
+    std: true, // 1〜5文字
+    exp: true  // 6文字以上
+};
+
 let filteredWords = [];
 
-let prevLineText = ""; 
-let currentLineText = ""; 
-let nextLineText = "";
+// 横3単語の行管理
+let currentLineWords = [];
+let nextLineWords = [];
 let currentLineSpans = []; 
 let currentCharIndex = 0; 
 let wordSegments = []; 
+let hadMistakeInCurrentWord = false;
+
+let comboCount = 0;
 let correctTypeCount = 0; 
 let incorrectTypeCount = 0; 
 let startTime = null; 
@@ -392,14 +466,25 @@ function createFilterUI() {
     }
 }
 
+// 🌟 長さフィルターのON/OFF切り替え
+function toggleLengthFilter(type) {
+    filterLength[type] = !filterLength[type];
+    const btnId = type === 'std' ? 'len-std-btn' : 'len-exp-btn';
+    const btn = document.getElementById(btnId);
+    if (btn) btn.classList.toggle('active', filterLength[type]);
+    onFilterChange();
+}
+
 function saveKeyPreset(slotId, event) {
     if (event) event.stopPropagation();
-    const charsArray = Array.from(activeChars);
-    localStorage.setItem(`emoji_typing_slot_${slotId}`, JSON.stringify(charsArray));
+    const saveObj = {
+        chars: Array.from(activeChars),
+        length: filterLength
+    };
+    localStorage.setItem(`emoji_typing_slot_${slotId}`, JSON.stringify(saveObj));
     alert(`Saved to Set ${slotId}!`);
 }
 
-// 【変更】クレンジング機能を廃止し、セーブデータをそのまま配列に復元するシンプルな処理に修正
 function loadKeyPreset(slotId, event) {
     if (event) event.stopPropagation();
     
@@ -409,8 +494,19 @@ function loadKeyPreset(slotId, event) {
         return;
     }
     
-    const charsArray = JSON.parse(savedData);
-    activeChars = new Set(charsArray);
+    const parsed = JSON.parse(savedData);
+    
+    // 互換性：配列なら文字のみ、オブジェクトなら文字+長さを復元
+    if (Array.isArray(parsed)) {
+        activeChars = new Set(parsed);
+    } else {
+        activeChars = new Set(parsed.chars || []);
+        if (parsed.length) {
+            filterLength = parsed.length;
+            document.getElementById('len-std-btn').classList.toggle('active', filterLength.std);
+            document.getElementById('len-exp-btn').classList.toggle('active', filterLength.exp);
+        }
+    }
     
     const allCharList = [...filterAlphabet.am, ...filterAlphabet.nz];
     allCharList.forEach(char => {
@@ -438,8 +534,12 @@ function toggleCharFilter(char, btn) {
 function setAllFilters(isActive) {
     if (isActive) {
         activeChars = new Set([...filterAlphabet.am, ...filterAlphabet.nz]);
+        filterLength.std = true;
+        filterLength.exp = true;
     } else {
         activeChars.clear();
+        filterLength.std = false;
+        filterLength.exp = false;
     }
     
     const allCharList = [...filterAlphabet.am, ...filterAlphabet.nz];
@@ -447,6 +547,10 @@ function setAllFilters(isActive) {
         const btn = document.getElementById("btn-char-" + char);
         if (btn) btn.classList.toggle("active", isActive);
     });
+
+    document.getElementById('len-std-btn').classList.toggle('active', filterLength.std);
+    document.getElementById('len-exp-btn').classList.toggle('active', filterLength.exp);
+
     onFilterChange();
 }
 
@@ -454,42 +558,53 @@ function onFilterChange() {
     filteredWords = wordPool.filter(item => {
         if (!item.word || item.word.length === 0) return false;
         const lowerWord = item.word.toLowerCase();
-        
-        for (let i = 0; i < lowerWord.length; i++) {
+        const len = lowerWord.length;
+
+        // 🌟 長さフィルター判定（掛け合わせ）
+        const matchStd = filterLength.std && len <= 5;
+        const matchExp = filterLength.exp && len >= 6;
+        if (!matchStd && !matchExp) return false;
+
+        // アルファベットホワイトリスト判定
+        for (let i = 0; i < len; i++) {
             if (!activeChars.has(lowerWord.charAt(i))) {
                 return false; 
             }
         }
         return true;
     });
+
+    document.getElementById("word-count-badge").innerText = `Words Available: ${filteredWords.length}`;
     initGame();
 }
 
-function generateRandomLine() {
-    if (filteredWords.length === 0) return "";
-    let lineWords = [];
-    const targetCount = 5; 
-    for(let i = 0; i < targetCount; i++) {
+function generateThreeWordLine() {
+    if (filteredWords.length === 0) return [];
+    const line = [];
+    for (let i = 0; i < 3; i++) {
         const item = filteredWords[Math.floor(Math.random() * filteredWords.length)];
-        lineWords.push(item.word);
+        line.push(item);
     }
-    return lineWords.join(" ") + " ";
+    return line;
 }
 
 function initGame() {
-    prevLineText = "";
-    currentLineText = generateRandomLine();
-    nextLineText = generateRandomLine();
+    currentLineWords = generateThreeWordLine();
+    nextLineWords = generateThreeWordLine();
+
+    comboCount = 0;
     correctTypeCount = 0; 
     incorrectTypeCount = 0; 
+    hadMistakeInCurrentWord = false;
     startTime = null; 
     if (timerInterval) clearInterval(timerInterval);
     
     document.getElementById("stat-time").innerText = "0s";
+    document.getElementById("stat-combo").innerText = "0";
     document.getElementById("stat-kpm").innerText = "0";
     document.getElementById("stat-acc").innerText = "100%";
 
-    if (currentLineText === "") {
+    if (currentLineWords.length === 0) {
         document.getElementById("info").innerText = "⚠️ No words can be formed with the active filters. Please select more letters.";
     } else {
         document.getElementById("info").innerText = "Press any key to start typing!";
@@ -498,38 +613,51 @@ function initGame() {
 }
 
 function renderLines() {
-    document.getElementById("prev-line").innerText = prevLineText;
-    document.getElementById("next-line").innerText = nextLineText;
-
     const currentContainer = document.getElementById("current-line");
+    const nextContainer = document.getElementById("next-line");
+
     currentContainer.innerHTML = "";
     currentLineSpans = [];
     currentCharIndex = 0;
     wordSegments = [];
+    hadMistakeInCurrentWord = false;
 
-    if (currentLineText === "") return;
+    if (currentLineWords.length === 0) {
+        currentContainer.innerText = "";
+        nextContainer.innerText = "";
+        return;
+    }
 
-    const tokens = currentLineText.split(/(\s+)/).filter(t => t.length > 0);
-    let tempIndex = 0;
-    
-    tokens.forEach(token => {
-        const cleanWord = token.trim().toLowerCase();
-        const matches = filteredWords.filter(item => item.word && item.word.toLowerCase() === cleanWord);
-        const matchedData = matches.length > 0 ? matches[Math.floor(Math.random() * matches.length)] : null;
-        const end = tempIndex + token.length - 1;
+    nextContainer.innerText = nextLineWords.map(w => w.word).join(" ");
 
-        for (let i = 0; i < token.length; i++) {
+    let runningIndex = 0;
+    currentLineWords.forEach((wordObj, wIndex) => {
+        const wordText = wordObj.word;
+
+        for (let i = 0; i < wordText.length; i++) {
             const span = document.createElement("span");
-            span.innerText = token[i];
+            span.innerText = wordText[i];
             span.className = "char-box";
             currentContainer.appendChild(span);
             currentLineSpans.push(span);
         }
+        runningIndex += wordText.length;
+        const wordEndIdx = runningIndex - 1;
 
-        if (cleanWord.length > 0 && matchedData) {
-            wordSegments.push({ endIndex: end, data: matchedData });
-        }
-        tempIndex += token.length;
+        const spaceSpan = document.createElement("span");
+        spaceSpan.innerText = " ";
+        spaceSpan.className = "char-box";
+        currentContainer.appendChild(spaceSpan);
+        currentLineSpans.push(spaceSpan);
+        const spaceIdx = runningIndex;
+        runningIndex += 1;
+
+        wordSegments.push({
+            wordObj: wordObj,
+            wordEndIndex: wordEndIdx,
+            spaceIndex: spaceIdx,
+            isLastWord: (wIndex === currentLineWords.length - 1)
+        });
     });
 
     if (currentLineSpans.length > 0) {
@@ -537,10 +665,9 @@ function renderLines() {
     }
 }
 
-function advanceRow() {
-    prevLineText = currentLineText;
-    currentLineText = nextLineText;
-    nextLineText = generateRandomLine();
+function advanceLine() {
+    currentLineWords = nextLineWords;
+    nextLineWords = generateThreeWordLine();
     renderLines();
 }
 
@@ -568,72 +695,85 @@ function toggleTheme() {
 }
 
 window.addEventListener("keydown", (e) => {
-    if (e.key.length !== 1) return;
+    if (e.key !== " " && e.key.length !== 1) return;
+    if (e.key === " ") e.preventDefault();
+
     const pressedKey = e.key; 
-    if (currentCharIndex >= currentLineSpans.length) return;
+    if (currentLineWords.length === 0 || currentCharIndex >= currentLineSpans.length) return;
 
     const panel = document.getElementById("filter-panel");
     if (panel.classList.contains("open")) {
         panel.classList.remove("open");
     }
 
-    if (!startTime && currentLineText !== "") {
+    if (!startTime && currentLineWords.length > 0) {
         startTime = Date.now();
         document.getElementById("info").innerText = "Typing...";
         timerInterval = setInterval(updateStats, 200);
     }
 
-    const targetKey = currentLineText[currentCharIndex];
+    const targetChar = currentLineSpans[currentCharIndex].innerText;
 
-    if (pressedKey.toLowerCase() === targetKey.toLowerCase()) {
+    const isMatch = (targetChar === " " && pressedKey === " ") || 
+                    (targetChar !== " " && pressedKey.toLowerCase() === targetChar.toLowerCase());
+
+    if (isMatch) {
         correctTypeCount++;
         currentLineSpans[currentCharIndex].classList.remove("current-char", "incorrect");
         currentLineSpans[currentCharIndex].classList.add("correct");
 
-        const finishedSegment = wordSegments.find(seg => seg.endIndex === currentCharIndex);
-        if (finishedSegment) {
-            const data = finishedSegment.data;
-            let emojiPool = [];
-            if (data.emojis && data.emojis.length > 0) emojiPool = data.emojis;
-            else if (data.emoji) emojiPool = [data.emoji];
-
-            if (emojiPool.length > 0) {
-                triggerEmojiAnimation(emojiPool, data.effect, data.facing);
+        const completedWordSeg = wordSegments.find(seg => seg.wordEndIndex === currentCharIndex);
+        if (completedWordSeg) {
+            if (!hadMistakeInCurrentWord) {
+                comboCount = Math.min(30, comboCount + 1);
+            } else {
+                comboCount = 0;
             }
+            document.getElementById("stat-combo").innerText = comboCount;
+
+            const wordObj = completedWordSeg.wordObj;
+            if (wordObj.emojis && wordObj.emojis.length > 0) {
+                triggerEmojiAnimation(wordObj.emojis, wordObj.effect, wordObj.facing, comboCount);
+            }
+            hadMistakeInCurrentWord = false;
+        }
+
+        const completedSpaceSeg = wordSegments.find(seg => seg.spaceIndex === currentCharIndex);
+        if (completedSpaceSeg && completedSpaceSeg.isLastWord) {
+            advanceLine();
+            updateStats();
+            return;
         }
 
         currentCharIndex++;
+
         if (currentCharIndex < currentLineSpans.length) {
             document.querySelectorAll(".char-box").forEach(el => el.classList.remove("current-char"));
             currentLineSpans[currentCharIndex].classList.add("current-char");
-        } else {
-            advanceRow();
         }
     } else {
         incorrectTypeCount++;
+        hadMistakeInCurrentWord = true;
+        comboCount = 0;
+        document.getElementById("stat-combo").innerText = comboCount;
         currentLineSpans[currentCharIndex].classList.add("incorrect");
     }
     updateStats();
 });
 
-function triggerEmojiAnimation(emojiPool, specifiedEffect, facing) {
+// 🌟 ユーザー様設定を反映：下限3個 〜 最大33個
+function triggerEmojiAnimation(emojiPool, specifiedEffect, facing, currentCombo) {
     let selectedType = "";
     const allTypes = ['up', 'rain', 'cross', 'vortex', 'zoom'];
 
-    if (specifiedEffect) {
-        if (Array.isArray(specifiedEffect)) {
-            selectedType = specifiedEffect[Math.floor(Math.random() * specifiedEffect.length)];
-        } else if (allTypes.includes(specifiedEffect)) {
-            selectedType = specifiedEffect;
-        }
+    if (specifiedEffect && allTypes.includes(specifiedEffect)) {
+        selectedType = specifiedEffect;
     }
     if (!selectedType) {
         selectedType = allTypes[Math.floor(Math.random() * allTypes.length)];
     }
 
-    const minCount = 8;
-    const maxCount = 18;
-    const spawnCount = Math.floor(Math.random() * (maxCount - minCount + 1)) + minCount;
+    const spawnCount = Math.min(33, 3 + (currentCombo || 0));
 
     if (selectedType === 'up') {
         for (let i = 0; i < spawnCount; i++) {
@@ -642,10 +782,10 @@ function triggerEmojiAnimation(emojiPool, specifiedEffect, facing) {
                 createEmojiElement(randomEmoji, {
                     animationName: 'float-up',
                     duration: 2 + Math.random() * 1.5 + 's',
-                    left: 15 + Math.random() * 70 + 'vw',
+                    left: 10 + Math.random() * 80 + 'vw',
                     customVars: { '--drift': (Math.random() - 0.5) * 250 + 'px' }
                 });
-            }, i * 100);
+            }, i * 60);
         }
     } 
     else if (selectedType === 'rain') {
@@ -659,7 +799,7 @@ function triggerEmojiAnimation(emojiPool, specifiedEffect, facing) {
                     top: '-10vh',
                     customVars: { '--spin': (Math.random() > 0.5 ? 360 : -360) * (1 + Math.random() * 2) + 'deg' }
                 });
-            }, i * 80);
+            }, i * 50);
         }
     } 
     else if (selectedType === 'cross') {
@@ -673,8 +813,8 @@ function triggerEmojiAnimation(emojiPool, specifiedEffect, facing) {
             setTimeout(() => {
                 createEmojiElement(randomEmoji, {
                     animationName: 'cross-screen',
-                    duration: 2.5 + Math.random() * 1.5 + 's',
-                    top: 20 + Math.random() * 60 + 'vh',
+                    duration: 2.2 + Math.random() * 1.3 + 's',
+                    top: 15 + Math.random() * 70 + 'vh',
                     customVars: {
                         '--start-x': goRight ? '-10vw' : '110vw',
                         '--end-x': goRight ? '110vw' : '-10vw',
@@ -682,28 +822,28 @@ function triggerEmojiAnimation(emojiPool, specifiedEffect, facing) {
                         '--flip': flipValue
                     }
                 });
-            }, i * 120);
+            }, i * 70);
         }
     }
     else if (selectedType === 'vortex') {
         for (let i = 0; i < spawnCount; i++) {
             const randomEmoji = emojiPool[Math.floor(Math.random() * emojiPool.length)];
-            const angle = (i * 0.4) + (Math.random() * 0.2); 
-            const radius = 300 + Math.random() * 250; 
+            const angle = (i * 0.35) + (Math.random() * 0.2); 
+            const radius = 250 + Math.random() * 280; 
             const vx = Math.cos(angle) * radius + 'px';
             const vy = Math.sin(angle) * radius + 'px';
 
             setTimeout(() => {
                 createEmojiElement(randomEmoji, {
                     animationName: 'vortex-spin',
-                    duration: 1.2 + Math.random() * 0.6 + 's',
+                    duration: 1.1 + Math.random() * 0.5 + 's',
                     customVars: {
                         '--vortex-x': vx,
                         '--vortex-y': vy,
                         '--vortex-rot': (720 + Math.random() * 360) + 'deg'
                     }
                 });
-            }, i * 60); 
+            }, i * 40); 
         }
     }
     else if (selectedType === 'zoom') {
@@ -717,14 +857,14 @@ function triggerEmojiAnimation(emojiPool, specifiedEffect, facing) {
             setTimeout(() => {
                 createEmojiElement(randomEmoji, {
                     animationName: 'zoom-splash',
-                    duration: 0.8 + Math.random() * 0.6 + 's',
+                    duration: 0.7 + Math.random() * 0.5 + 's',
                     customVars: {
                         '--move-x': moveX,
                         '--move-y': moveY,
                         '--spin': (Math.random() - 0.5) * 720 + 'deg'
                     }
                 });
-            }, i * 50);
+            }, i * 35);
         }
     }
 }
